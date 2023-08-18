@@ -17,7 +17,7 @@ GITIGNORE := .gitignore
 GIT := git
 
 # virtual environemnt name
-VENV := .venv 
+VENV := .venv
 
 PIP := pip
 
@@ -51,13 +51,14 @@ $(SRC): $(VENV)
 
 
 $(PIP):$(VENV) $(SRC) 
-	@echo $(info Installing $(PIP) to the virtual environment $(VENV))
+	@echo $(info Updating $(PIP))
 	@$(BINBASH) -c '\
 		source "$(VENV)/bin/activate";\
+		source $(SRC);\
 		$(PIP) install --upgrade $(PIP) --quiet;\
 		'
 $(POETRY): $(PIP)
-	@echo $(info Installing $(POETRY) to the virtual environment $(VENV))
+	@echo $(info Installing $(POETRY))
 	@$(BINBASH) -c '\
 		source "$(VENV)/bin/activate";\
 		source $(SRC);\
@@ -76,7 +77,7 @@ git-first-commit: $(GITIGNORE) $(POETRY)
 
 
 
-all: $(POETRY) 
+all: $(GITIGNORE)  $(POETRY) 
 
 clean:
 	rm -rf $(CLEAN_FILES);
