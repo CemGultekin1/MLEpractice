@@ -7,7 +7,7 @@ This is a Makefile example that contains targets for
 Makefiles define dependencies. Before building a target its defined dependencies are built.
 Each of the dependencies themselves should be defined as new targets.
 
-For e.g. below [pip] has a dependency [.venv] and [.venv] is defined as a separate target.
+For e.g. below 'pip' has a dependency [.venv] and [.venv] is defined as a separate target.
 ```bash
 pip: .venv
     # put code here to install pip
