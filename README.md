@@ -3,6 +3,7 @@
 This is a Makefile example that contains targets for
 - building a virtual environment
 - installing poetry
+Makefiles are a great way to establish repeatable builds.
 
 Makefiles define dependencies. Before building a target its defined dependencies are built.
 Each of the dependencies themselves should be defined as new targets.

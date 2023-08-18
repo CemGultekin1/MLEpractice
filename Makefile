@@ -10,11 +10,9 @@ PROJECT_DESCRIPTION := "A setup example"
 GIT_REPO = "MLEpractice"
 GIT_USER = "CemGultekin1"
 
-BINBASH ='/bin/bash'
+BINBASH =/bin/bash
 
 SRC := src.sh
-GITIGNORE := .gitignore
-GIT := git
 
 # virtual environemnt name
 VENV := .venv
@@ -27,21 +25,31 @@ POETRY_LOCK := poetry.lock
 POETRY_TOML := pyproject.toml 
 
 
+#Folders
+FOLDERS = data src build examples libs
 
 
-CLEAN_FILES = $(SRC) $(GITIGNORE) $(VENV) $(POETRY_LOCK) $(POETRY_TOML) $(README_MD)
+#Github
+GITIGNORE := .gitignore
+GIT := git
+NON_GIT_FOLDERS := $(VENV) data build # must be elements from FOLDERS
+
+CLEANABLES = $(SRC) $(GITIGNORE) $(VENV) $(POETRY_LOCK) $(POETRY_TOML) $(README_MD) 
 
 
-
+$(FOLDERS):
+	mkdir $@
 
 $(VENV):
 	@echo $(info Creating virtual environment $(VENV))
 	@python3 -m venv $(VENV);
 
-$(GITIGNORE):
-	@echo $(info Creating $(GITIGNORE))
-	@touch $(GITIGNORE);
-	@echo ".*" >> $(GITIGNORE);
+
+$(GITIGNORE): $(FOLDERS)
+	@echo $(info Creating $(GITIGNORE));
+	@rm -rf $(GITIGNORE);
+	@$(foreach file, $(NON_GIT_FOLDERS), echo $(file) >> $(GITIGNORE);)
+
 
 $(SRC): $(VENV)
 	@echo $(info Environment variables are sourced in $(SRC))
@@ -62,9 +70,14 @@ $(POETRY): $(PIP)
 	@$(BINBASH) -c '\
 		source "$(VENV)/bin/activate";\
 		source $(SRC);\
+		$(PIP) install numpy dask-sql SQLAlchemy --quiet;\
 		$(PIP) install $(POETRY) --quiet;\
+		$(PIP) freeze > requirements.txt;\
 		$(POETRY) init --no-interaction --author $(WRITERS) --description $(PROJECT_DESCRIPTION) --quiet;\
+		$(POETRY) add $$(cat requirements.txt ) --quiet;\
 		$(POETRY) install --no-root --quiet;'
+
+
 
 git-first-commit: $(GITIGNORE) $(POETRY) 
 	@echo $(info Sets up a)
@@ -77,8 +90,8 @@ git-first-commit: $(GITIGNORE) $(POETRY)
 
 
 
-all: $(GITIGNORE)  $(POETRY) 
+all: $(GITIGNORE)  $(POETRY) $(FOLDERS)
 
 clean:
-	rm -rf $(CLEAN_FILES);
+	rm -rf $(CLEANABLES);
 
