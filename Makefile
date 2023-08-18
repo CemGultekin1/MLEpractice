@@ -71,6 +71,8 @@ git-first-commit: $(READ_MD) $(GITIGNORE) $(POETRY)
 	git remote add origin https://github.com/$(GIT_USER)/$(GIT_REPO).git
 	git push -u origin main
 
+
+
 all: $(READ_MD) $(POETRY) 
 
 clean:
