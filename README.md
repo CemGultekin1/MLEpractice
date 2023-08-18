@@ -29,6 +29,9 @@ You can install libraries or compile code by customizing or adding new targets.
 
 We include a `git-first-commit` target that uses `GIT_USER` and `GIT_REPO` to 
 initiate github, add a remote repo and do a first commit.
+```bash 
+make git-first-commit
+```
 
 `make clean` is for deleting the files built by `make`. 
 If you want to
