@@ -5,9 +5,8 @@
 
 WRITERS := "Cem Gultekin, Goktug Asci"
 EMAILS := "cgultekin95@gmail.com, gasci@gmail.com"
-PROJECT_NAME := "Build By Make"
-PROJECT_DESCRIPTION := "An setup example"
-
+PROJECT_NAME := "MLEpractice"
+PROJECT_DESCRIPTION := "A setup example"
 GIT_REPO = "MLEpractice"
 GIT_USER = "CemGultekin1"
 
@@ -16,21 +15,24 @@ BINBASH ='/bin/bash'
 SRC := src.sh
 GITIGNORE := .gitignore
 GIT := git
-READ_MD := READ.md
-VENV := .venv
-POETRY_LOCK := poetry.lock
-POETRY_TOML := pyproject.toml
+
+# virtual environemnt name
+VENV := .venv 
+
 PIP := pip
+
 POETRY := poetry
+# created poetry files
+POETRY_LOCK := poetry.lock 
+POETRY_TOML := pyproject.toml 
 
-CLEAN_FILES = $(SRC) $(GITIGNORE) $(VENV) $(POETRY_LOCK) $(POETRY_TOML) $(READ_MD)
 
-$(READ_MD):
-	@echo $(info Writing $(READ_MD) file)
-	@echo $(PROJECT_NAME) >> $(READ_MD);
-	@echo $(WRITERS) >> $(READ_MD);
-	@echo $(EMAILS) >> $(READ_MD);
-	
+
+
+CLEAN_FILES = $(SRC) $(GITIGNORE) $(VENV) $(POETRY_LOCK) $(POETRY_TOML) $(README_MD)
+
+
+
 
 $(VENV):
 	@echo $(info Creating virtual environment $(VENV))
@@ -63,7 +65,8 @@ $(POETRY): $(PIP)
 		$(POETRY) init --no-interaction --author $(WRITERS) --description $(PROJECT_DESCRIPTION) --quiet;\
 		$(POETRY) install --no-root --quiet;'
 
-git-first-commit: $(READ_MD) $(GITIGNORE) $(POETRY) 
+git-first-commit: $(GITIGNORE) $(POETRY) 
+	@echo $(info Sets up a)
 	git init
 	git add .
 	git commit -m "first commit"
@@ -73,7 +76,7 @@ git-first-commit: $(READ_MD) $(GITIGNORE) $(POETRY)
 
 
 
-all: $(READ_MD) $(POETRY) 
+all: $(POETRY) 
 
 clean:
 	rm -rf $(CLEAN_FILES);
