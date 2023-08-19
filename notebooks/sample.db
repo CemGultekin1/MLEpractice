@@ -1,0 +1,5 @@
+SELECT *
+FROM product AS p
+	RIGHT JOIN product_category AS pc
+		ON p.product_category_id = pc.product_category_id
+ORDER BY pc.product_category_name, p.product_name

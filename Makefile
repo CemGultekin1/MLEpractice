@@ -35,7 +35,7 @@ GIT_REPO = "MLEpractice"
 GIT_USER = "CemGultekin1"
 GITIGNORE := .gitignore
 GIT := git
-NON_GIT_FOLDERS := $(VENV) data build # must be elements from FOLDERS
+GIT_IGNORE_FOLDERS := $(VENV) data build # must be elements from FOLDERS
 
 CLEANABLES = $(SRC) $(GITIGNORE) $(VENV) $(POETRY_LOCK) $(POETRY_TOML) $(README_MD) $(REQIREMENTS_TXT)
 
@@ -51,7 +51,7 @@ $(VENV):
 $(GITIGNORE): $(FOLDERS)
 	@echo $(info Creating $(GITIGNORE));
 	@rm -rf $(GITIGNORE);
-	@$(foreach file, $(NON_GIT_FOLDERS), echo $(file) >> $(GITIGNORE);)
+	@$(foreach file, $(GIT_IGNORE_FOLDERS), echo $(file) >> $(GITIGNORE);)
 
 
 $(SRC): $(VENV)
