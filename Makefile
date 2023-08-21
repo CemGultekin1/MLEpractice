@@ -3,15 +3,17 @@
 .DEFAULT_GOAL := all
 .PHONY : all
 
-WRITERS := "Cem Gultekin, Goktug Asci"
-EMAILS := "cgultekin95@gmail.com, gasci@gmail.com"
-PROJECT_NAME := "MLEpractice"
-PROJECT_DESCRIPTION := "A setup example"
+AUTHOR := Cem Gultekin
+EMAIL := cgultekin95@gmail.com
+PROJECT_NAME := MLEpractice
+PROJECT_DESCRIPTION := A setup example
 
 
-BINBASH =/bin/bash
+BINBASH := /bin/bash
 
 SRC := src.sh
+
+PYTHON := python3
 
 # virtual environemnt name
 VENV := .venv
@@ -19,25 +21,25 @@ VENV := .venv
 PIP := pip
 
 POETRY := poetry
+
 # created poetry files
-POETRY_LOCK := poetry.lock 
-POETRY_TOML := pyproject.toml 
+POETRY_LOCK := poetry.lock
+POETRY_TOML := pyproject.toml
 
 
 #Folders
 FOLDERS = data src build examples libs notebooks
 
 #Dependencies
-REQIREMENTS_TXT = requirements.txt
+# REQIREMENTS_TXT = requirements.txt
 
 #Github
 GIT_REPO = "MLEpractice"
 GIT_USER = "CemGultekin1"
 GITIGNORE := .gitignore
-GIT := git
 GIT_IGNORE_FOLDERS := $(VENV) data build # must be elements from FOLDERS
 
-CLEANABLES = $(SRC) $(GITIGNORE) $(VENV) $(POETRY_LOCK) $(POETRY_TOML) $(README_MD) $(REQIREMENTS_TXT)
+CLEANABLES = $(SRC) $(GITIGNORE) $(VENV)  #$(POETRY_LOCK) $(POETRY_TOML) 
 
 
 $(FOLDERS):
@@ -45,7 +47,7 @@ $(FOLDERS):
 
 $(VENV):
 	@echo $(info Creating virtual environment $(VENV))
-	@python3 -m venv $(VENV);
+	@$(PYTHON) -m venv $(VENV);
 
 
 $(GITIGNORE): $(FOLDERS)
@@ -69,19 +71,49 @@ $(PIP):$(VENV) $(SRC)
 		$(PIP) install --upgrade $(PIP) --quiet;\
 		'
 $(POETRY): $(PIP)
-	@echo $(info Installing $(POETRY) and other depedencies)
+	@echo $(info Installing $(POETRY))
 	@$(BINBASH) -c '\
 		source "$(VENV)/bin/activate";\
 		source $(SRC);\
-		$(PIP) install numpy ipykernel pandas sqlalchemy --quiet;\
 		$(PIP) install $(POETRY) --quiet;\
-		$(PIP) freeze > $(REQIREMENTS_TXT);\
-		$(POETRY) init --no-interaction --author $(WRITERS) --description $(PROJECT_DESCRIPTION) --quiet;\
-		$(POETRY) add $$(cat $(REQIREMENTS_TXT) ) --quiet;\
+		'
+
+default-dependencies : $(POETRY)
+	rm -rf $(POETRY_LOCK) $(POETRY_TOML)
+	@echo $(info Creating default $(POETRY_LOCK) and $(POETRY_TOML))
+	@$(BINBASH) -c '\
+		source "$(VENV)/bin/activate";\
+		source $(SRC);\
+		$(POETRY) init --no-interaction --author "$(AUTHOR)" --description "$(PROJECT_DESCRIPTION)" --quiet;\
+		$(POETRY) add requests numpy pandas boto3;\
+		$(POETRY) add torch@2.0.0;\
+		$(POETRY) add torchvision@0.15.1;\
+		$(POETRY) add awscli;\
 		$(POETRY) install --no-root --quiet;'
 
+aws-configure:
+	@$(BINBASH) -c '\
+		source "$(VENV)/bin/activate";\
+		source $(SRC);\
+		aws configure;\
+	'
 
+install-dependencies: 
+	@echo $(info Installing from $(POETRY_LOCK) and $(POETRY_TOML))
+	@$(BINBASH) -c '\
+		source "$(VENV)/bin/activate";\
+		source $(SRC);\
+		$(POETRY) install;'
 
+delete-poetry-files: 
+	@rm -rf $(POETRY_LOCK) $(POETRY_TOML)
+
+pip-list:
+	@$(BINBASH) -c '\
+		source "$(VENV)/bin/activate";\
+		source $(SRC);\
+		$(PIP) list;\
+	'
 git-first-commit: $(GITIGNORE) $(POETRY) 
 	@echo $(info Sets up a)
 	git init
@@ -93,7 +125,7 @@ git-first-commit: $(GITIGNORE) $(POETRY)
 
 
 
-all: $(GITIGNORE) $(POETRY) $(FOLDERS)
+all: $(GITIGNORE) $(FOLDERS) $(POETRY)
 
 clean:
-	rm -rf $(CLEANABLES);
+	rm -rf $(CLEANABLES)

@@ -35,4 +35,3 @@ make git-first-commit
 ```
 
 `make clean` is for deleting the files built by `make`. 
-If you want to
