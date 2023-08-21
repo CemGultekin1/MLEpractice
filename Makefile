@@ -27,19 +27,22 @@ POETRY_LOCK := poetry.lock
 POETRY_TOML := pyproject.toml
 
 
-#Folders
-FOLDERS = data src build examples libs notebooks
+#AWS
+AWS :=  .aws
+AWS_CONFIG := $(AWS)/config
+AWS_CREDENTIALS := $(AWS)/credentials
 
-#Dependencies
-# REQIREMENTS_TXT = requirements.txt
+#Folders
+FOLDERS = data src build examples libs notebooks $(AWS)
+
 
 #Github
 GIT_REPO = "MLEpractice"
 GIT_USER = "CemGultekin1"
 GITIGNORE := .gitignore
-GIT_IGNORE_FOLDERS := $(VENV) data build # must be elements from FOLDERS
+GIT_IGNORE_FOLDERS := $(VENV) $(AWS) data build # must be elements from FOLDERS
 
-CLEANABLES = $(SRC) $(GITIGNORE) $(VENV)  #$(POETRY_LOCK) $(POETRY_TOML) 
+CLEANABLES = $(SRC) $(GITIGNORE) $(VENV) $(AWS)
 
 
 $(FOLDERS):
@@ -48,6 +51,9 @@ $(FOLDERS):
 $(VENV):
 	@echo $(info Creating virtual environment $(VENV))
 	@$(PYTHON) -m venv $(VENV);
+
+
+	
 
 
 $(GITIGNORE): $(FOLDERS)
@@ -61,7 +67,8 @@ $(SRC): $(VENV)
 	@touch $(SRC);
 	@echo "#!$(BINBASH)" >> $(SRC);
 	@echo "export PYTHONPATH=$$(pwd)" >> $(SRC);
-
+	@echo "export AWS_CONFIG_FILE=$(AWS_CONFIG)" >> $(SRC);
+	@echo "export AWS_SHARED_CREDENTIALS_FILE=$(AWS_CREDENTIALS)" >> $(SRC);
 
 $(PIP):$(VENV) $(SRC) 
 	@echo $(info Updating $(PIP))
@@ -78,8 +85,10 @@ $(POETRY): $(PIP)
 		$(PIP) install $(POETRY) --quiet;\
 		'
 
-default-dependencies : $(POETRY)
-	rm -rf $(POETRY_LOCK) $(POETRY_TOML)
+poetry_lock_exists:
+ifneq ("$(wildcard $(POETRY_LOCK))","")
+	@echo $(info $(POETRY_LOCK) and $(POETRY_TOML) are found);
+else
 	@echo $(info Creating default $(POETRY_LOCK) and $(POETRY_TOML))
 	@$(BINBASH) -c '\
 		source "$(VENV)/bin/activate";\
@@ -89,25 +98,26 @@ default-dependencies : $(POETRY)
 		$(POETRY) add torch@2.0.0;\
 		$(POETRY) add torchvision@0.15.1;\
 		$(POETRY) add awscli;\
-		$(POETRY) add ipykernel;\
-		$(POETRY) install --no-root --quiet;'
+		$(POETRY) add ipykernel;'
+endif
 
-aws-configure:
-	@$(BINBASH) -c '\
-		source "$(VENV)/bin/activate";\
-		source $(SRC);\
-		aws configure;\
-	'
+$(POETRY_LOCK),$(POETRY_TOML) : $(POETRY)
+	@make poetry_lock_exists
 
-install-dependencies: 
-	@echo $(info Installing from $(POETRY_LOCK) and $(POETRY_TOML))
+
+dependencies: $(POETRY_LOCK),$(POETRY_TOML)
+	@echo $(info Installing dependencies from $(POETRY_LOCK))
 	@$(BINBASH) -c '\
 		source "$(VENV)/bin/activate";\
 		source $(SRC);\
 		$(POETRY) install;'
 
-delete-poetry-files: 
-	@rm -rf $(POETRY_LOCK) $(POETRY_TOML)
+aws-setup:
+	@$(BINBASH) -c '\
+		source "$(VENV)/bin/activate";\
+		source $(SRC);\
+		aws configure;\
+	'
 
 pip-list:
 	@$(BINBASH) -c '\
@@ -115,6 +125,7 @@ pip-list:
 		source $(SRC);\
 		$(PIP) list;\
 	'
+
 git-first-commit: $(GITIGNORE) $(POETRY) 
 	@echo $(info Sets up a)
 	git init
@@ -126,7 +137,7 @@ git-first-commit: $(GITIGNORE) $(POETRY)
 
 
 
-all: $(GITIGNORE) $(FOLDERS) $(POETRY)
+all: $(GITIGNORE) $(FOLDERS) dependencies
 
 clean:
 	rm -rf $(CLEANABLES)
