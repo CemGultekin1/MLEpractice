@@ -14,6 +14,7 @@ boto3 = "^1.28.30"
 torch = "2.0.0"
 torchvision = "0.15.1"
 awscli = "^1.29.30"
+ipykernel = "^6.25.1"
 
 
 [build-system]

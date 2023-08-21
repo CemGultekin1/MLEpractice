@@ -89,6 +89,7 @@ default-dependencies : $(POETRY)
 		$(POETRY) add torch@2.0.0;\
 		$(POETRY) add torchvision@0.15.1;\
 		$(POETRY) add awscli;\
+		$(POETRY) add ipykernel;\
 		$(POETRY) install --no-root --quiet;'
 
 aws-configure:
